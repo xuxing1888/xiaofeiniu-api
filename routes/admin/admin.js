@@ -41,7 +41,7 @@ router.get('/login/:aname/:apwd', (req, res) => {
 * {code: 401, msg: 'apwd not modified'}   //没做修改
 */
 router.patch('/', (req, res) => {
-  var data = req.body;
+  var data = req.body;    //{aname:'', oldPwd:'',newPwd:''}
   console.log(data);             //******sql查询才是数组，其他事对象******/
   //首先根据aname/oldPwd查询该用户是否存在 
   pool.query(`SELECT aid FROM xfn_admin WHERE aname=? AND apwd=PASSWORD(?)`, [data.aname, data.oldPwd], (err, result) => {    //,apwd

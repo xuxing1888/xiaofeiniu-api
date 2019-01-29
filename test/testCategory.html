@@ -40,6 +40,7 @@
     }
 
     bt3.onclick = function () {
+      //向服务器发送JSON类型的请求数据
       var data = { cname: '恐龙类' };
       axios.post('http://127.0.0.1:8090/admin/category', data)
         .then((result) => {

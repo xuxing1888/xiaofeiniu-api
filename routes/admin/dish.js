@@ -15,24 +15,27 @@ module.exports = router;
 * ]
 */
 router.get('/', (req, res) => {
-  //查询所有的菜品类别
-  pool.query(`SELECT cid,cname FROM xfn_category `, (err, result) => {
+  //为了获得所有菜品，必须先查询菜品类别
+  pool.query('SELECT cid,cname FROM xfn_category ORDER BY cid', (err, result) => {
     if (err) throw err;
-    var categoryList = result;  //菜品类别数组
-    var count = 0;
-
-    for (var c of categoryList) {
-      //循环查询每个类别下有哪些菜品
-      pool.query(`SELECT * FROM xfn_dish WHERE categoryId=?`, c.cid, (err, result) => {
+    //循环遍历每个菜品类别，查询该类别下有哪些菜品
+    var categoryList = result;    //类别列表
+    var finishCount = 0; //已经查询完菜品的类别的数量
+    //for(var c of categoryList){
+    for (let c of categoryList) {
+      pool.query('SELECT * FROM xfn_dish WHERE categoryId=? ORDER BY did DESC', c.cid, (err, result) => {
+        if (err) throw err;
         c.dishList = result;
-        count++;
-        if(count == categoryList.length){
+        finishCount++;
+        //必须保证所有的类别下的菜品都查询完成才能发送响应消息——这些查询都是异步执行的
+        if (finishCount == categoryList.length) {
           res.send(categoryList);
         }
       })
     }
   })
 })
+
 
 
 /*
@@ -59,14 +62,14 @@ router.post('/image',upload.single('dishImg'),(req,res)=>{
   fs.rename(tmpFile, 'img/dish/' +newFile,()=>{
     res.send({code:200, msg:'upload succ',fileName:newFile}); //临时文件转移
   })
-  //res.send({});
 })
 
 //生成一个随机文件名
 //参数：suffix表示要生成的文件名中的后缀
+//形如： 1351324631-8821.jpg
 //min max: Math.random()*(max-min) + min;
 function randFileName(suffix){
-  var time = new Date().getTime();
+  var time = new Date().getTime(); //当前系统时间戳
   var num = Math.floor(Math.random()*(10000-1000)+1000); //四位随机数 0-9999
   return time+'-'+num+suffix;
 }

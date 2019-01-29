@@ -16,10 +16,10 @@ var router = express.Router();
  *   [{cid: 1, cname: ''},{...}]
  */
 router.get('/', (req, res) => {
-  var sql = `SELECT * FROM xfn_category ORDER BY cid`;
-  pool.query(sql, [], (err, result) => {
+  pool.query('SELECT * FROM xfn_category ORDER BY cid', (err, result) => {
     if (err) throw err;
-    res.send(result);
+    var jsonData = JSON.stringify(result);
+    res.send('doData(' + jsonData + ')');
   })
 })
 
